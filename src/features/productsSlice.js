@@ -3,11 +3,13 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 export const fetchData = createAsyncThunk(
   "products/fetchproductData",
   async () => {
-    const res = await fetch("https://fakestoreapi.com/products");
+    // const res = await fetch("https://fakestoreapi.com/products");
+    const res = await fetch("https://dummyjson.com/products");
     const data = await res.json();
     return data;
   },
 );
+
 const initialState = {
   products: [],
   cart: [],
@@ -40,14 +42,14 @@ const productSlice = createSlice({
     },
 
     increaseQuantity: (state, action) => {
-      const item = state.card.find((i) => item.id === action.payload);
+      const item = state.cart.find((i) => i.id === action.payload);
       if (item) {
         item.quantity += 1;
       }
     },
 
     decreaseQuantity: (state, action) => {
-      const item = state.card.find((i) => item.id === action.payload);
+      const item = state.cart.find((i) => i.id === action.payload);
       if (item && item.quantity > 1) {
         item.quantity -= 1;
       }
@@ -62,7 +64,9 @@ const productSlice = createSlice({
       })
       .addCase(fetchData.fulfilled, (state, action) => {
         state.loading = false;
-        state.products = action.payload;
+        state.products = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload.products || [];
       })
       .addCase(fetchData.rejected, (state) => {
         state.loading = false;
