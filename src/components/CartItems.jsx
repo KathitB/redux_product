@@ -43,19 +43,17 @@ export default function CartItems() {
                 >
                   Remove
                 </button>
-
-                <button
-                  className="cartPanel__remove"
-                  onClick={() => dispatch(increaseQuantity(item.id))}
-                >
-                  +
-                </button>
-
                 <button
                   className="cartPanel__remove"
                   onClick={() => dispatch(decreaseQuantity(item.id))}
                 >
                   -
+                </button>
+                <button
+                  className="cartPanel__remove"
+                  onClick={() => dispatch(increaseQuantity(item.id))}
+                >
+                  +
                 </button>
               </div>
             ))}
