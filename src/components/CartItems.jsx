@@ -1,7 +1,12 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 // import { removeFromCart, clearCart } from "../features/productSlice";
-import { removeFromCart, clearCart } from "../features/productsSlice";
+import {
+  removeFromCart,
+  clearCart,
+  increaseQuantity,
+  decreaseQuantity,
+} from "../features/productsSlice";
 import "./CartItems.scss";
 
 export default function CartItems() {
@@ -37,6 +42,20 @@ export default function CartItems() {
                   onClick={() => dispatch(removeFromCart(item.id))}
                 >
                   Remove
+                </button>
+
+                <button
+                  className="cartPanel__remove"
+                  onClick={() => dispatch(increaseQuantity(item.id))}
+                >
+                  +
+                </button>
+
+                <button
+                  className="cartPanel__remove"
+                  onClick={() => dispatch(decreaseQuantity(item.id))}
+                >
+                  -
                 </button>
               </div>
             ))}

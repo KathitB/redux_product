@@ -38,6 +38,20 @@ const productSlice = createSlice({
     clearCart: (state, action) => {
       state.cart = [];
     },
+
+    increaseQuantity: (state, action) => {
+      const item = state.card.find((i) => item.id === action.payload);
+      if (item) {
+        item.quantity += 1;
+      }
+    },
+
+    decreaseQuantity: (state, action) => {
+      const item = state.card.find((i) => item.id === action.payload);
+      if (item && item.quantity > 1) {
+        item.quantity -= 1;
+      }
+    },
   },
 
   extraReducers: (builder) => {
@@ -57,6 +71,12 @@ const productSlice = createSlice({
   },
 });
 
-export const { addToCart, removeFromCart, clearCart } = productSlice.actions;
+export const {
+  addToCart,
+  removeFromCart,
+  clearCart,
+  decreaseQuantity,
+  increaseQuantity,
+} = productSlice.actions;
 
 export default productSlice.reducer;
