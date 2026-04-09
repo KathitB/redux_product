@@ -12,9 +12,10 @@ export const fetchData = createAsyncThunk(
 
 const initialState = {
   products: [],
-  cart: [],
+  //   cart: [],
   loading: false,
   error: null,
+  cart: JSON.parse(localStorage.getItem("cart")) || [],
 };
 
 const productSlice = createSlice({
@@ -31,14 +32,20 @@ const productSlice = createSlice({
       } else {
         state.cart.push({ ...item, quantity: 1 });
       }
+
+      localStorage.setItem("cart", JSON.stringify(state.cart));
     },
 
     removeFromCart: (state, action) => {
       state.cart = state.cart.filter((item) => item.id !== action.payload);
+
+      localStorage.setItem("cart", JSON.stringify(state.cart));
     },
 
     clearCart: (state, action) => {
       state.cart = [];
+
+      localStorage.setItem("cart", JSON.stringify(state.cart));
     },
 
     increaseQuantity: (state, action) => {
@@ -46,6 +53,7 @@ const productSlice = createSlice({
       if (item) {
         item.quantity += 1;
       }
+      localStorage.setItem("cart", JSON.stringify(state.cart));
     },
 
     decreaseQuantity: (state, action) => {
@@ -53,6 +61,7 @@ const productSlice = createSlice({
       if (item && item.quantity > 1) {
         item.quantity -= 1;
       }
+      localStorage.setItem("cart", JSON.stringify(state.cart));
     },
   },
 
