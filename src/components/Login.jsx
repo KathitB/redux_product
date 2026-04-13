@@ -42,7 +42,6 @@ export default function Login() {
   return (
     <section className="loginPanel">
       <div className="loginPanel__content">
-        {/* <p className="loginPanel__eyebrow">Authentication</p> */}
         <h1>Login</h1>
 
         <form className="loginForm" onSubmit={handleSubmit}>
@@ -67,18 +66,6 @@ export default function Login() {
               onChange={handleChange}
             />
           </label>
-
-          {showValidation ? (
-            <p className="loginForm__message loginForm__message--error">
-              Please enter both email and password.
-            </p>
-          ) : null}
-
-          {error ? (
-            <p className="loginForm__message loginForm__message--error">
-              {error}
-            </p>
-          ) : null}
 
           <button className="loginForm__submit" type="submit">
             Login
