@@ -19,6 +19,11 @@
     margin: 0 auto 32px;
   }
 
+  &__header--compact {
+    align-items: center;
+    justify-content: flex-end;
+  }
+
   &__eyebrow {
     margin: 0 0 8px;
     font-size: 0.85rem;
@@ -137,3 +142,14 @@
     grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
   }
 }
+
+// @media (max-width: 640px) {
+//   .appShell {
+//     padding: 29px 24px 64px;
+//     display: flow-root;
+//     // justify-content: none;
+
+//     h1 {
+//     }
+//   }
+// }

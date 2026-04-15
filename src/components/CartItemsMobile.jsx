@@ -1,15 +1,13 @@
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-// import { removeFromCart, clearCart } from "../features/productSlice";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  removeFromCart,
   clearCart,
-  increaseQuantity,
   decreaseQuantity,
+  increaseQuantity,
+  removeFromCart,
 } from "../features/productsSlice";
-import "./CartItems.scss";
+import "./CartItemsMobile.scss";
 
-export default function CartItems({ onCheckout }) {
+export default function CartItemsMobile({ onBack, onCheckout }) {
   const { cart } = useSelector((state) => state.products);
   const dispatch = useDispatch();
   const cartItems = cart.filter((item) => item.quantity > 0);
@@ -21,46 +19,53 @@ export default function CartItems({ onCheckout }) {
   );
 
   return (
-    <aside className="cartPanel">
-      <div className="cartPanel__header">
-        <h2>Cart</h2>
-        <span className="cartPanel__badge">{totalItems} items</span>
+    <section className="cartMobile">
+      <div className="cartMobile__header">
+        <button type="button" className="cartMobile__back" onClick={onBack}>
+          Back
+        </button>
+        <div>
+          <h2>Cart</h2>
+          <p>{totalItems} items</p>
+        </div>
       </div>
 
       {cartItems.length === 0 ? (
-        <p className="cartPanel__empty">No items in cart</p>
+        <p className="cartMobile__empty">No items in cart</p>
       ) : (
         <>
-          <div className="cartPanel__items">
+          <div className="cartMobile__items">
             {cartItems.map((item) => (
-              <div className="cartPanel__item" key={item.id}>
-                <div className="cartPanel__details">
-                  <p className="cartPanel__title">{item.title}</p>
-                  <p className="cartPanel__meta">${item.price} each</p>
+              <div className="cartMobile__item" key={item.id}>
+                <div className="cartMobile__details">
+                  <p className="cartMobile__title">{item.title}</p>
+                  <p className="cartMobile__meta">${item.price} each</p>
                 </div>
-                <div className="cartPanel__actions">
-                  <div className="cartPanel__quantityControl">
+
+                <div className="cartMobile__actions">
+                  <div className="cartMobile__quantityControl">
                     <button
                       type="button"
-                      className="cartPanel__quantityButton"
+                      className="cartMobile__quantityButton"
                       onClick={() => dispatch(decreaseQuantity(item.id))}
                     >
                       -
                     </button>
-                    <span className="cartPanel__quantityValue">
+                    <span className="cartMobile__quantityValue">
                       {item.quantity}
                     </span>
                     <button
                       type="button"
-                      className="cartPanel__quantityButton"
+                      className="cartMobile__quantityButton"
                       onClick={() => dispatch(increaseQuantity(item.id))}
                     >
                       +
                     </button>
                   </div>
+
                   <button
                     type="button"
-                    className="cartPanel__remove"
+                    className="cartMobile__remove"
                     onClick={() => dispatch(removeFromCart(item.id))}
                   >
                     Remove
@@ -70,14 +75,15 @@ export default function CartItems({ onCheckout }) {
             ))}
           </div>
 
-          <div className="cartPanel__footer">
-            <div className="cartPanel__total">
+          <div className="cartMobile__footer">
+            <div className="cartMobile__total">
               <span>Total Amount</span>
               <strong>${totalAmount.toFixed(2)}</strong>
             </div>
 
             <button
-              className="cartPanel__clear"
+              type="button"
+              className="cartMobile__clear"
               onClick={() => dispatch(clearCart())}
             >
               Clear Cart
@@ -85,7 +91,7 @@ export default function CartItems({ onCheckout }) {
 
             <button
               type="button"
-              className="cartPanel__checkout"
+              className="cartMobile__checkout"
               onClick={onCheckout}
             >
               Buy Now
@@ -93,6 +99,6 @@ export default function CartItems({ onCheckout }) {
           </div>
         </>
       )}
-    </aside>
+    </section>
   );
 }
