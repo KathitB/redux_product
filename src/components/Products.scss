@@ -31,7 +31,9 @@
 
   &__body {
     display: grid;
+    flex: 1;
     gap: 12px;
+    grid-template-rows: auto auto auto 1fr auto;
   }
 
   &__category {
@@ -68,6 +70,7 @@
 
   &__price {
     margin: 0;
+    align-self: end;
     font-size: 1.4rem;
     font-weight: 800;
     color: #0f172a;
