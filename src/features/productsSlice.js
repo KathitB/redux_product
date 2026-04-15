@@ -10,11 +10,31 @@ export const fetchData = createAsyncThunk(
   },
 );
 
+export const fetchProductById = createAsyncThunk(
+  "products/fetchProductById",
+  async (productId, { rejectWithValue }) => {
+    try {
+      const res = await fetch(`https://dummyjson.com/products/${productId}`);
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch product details");
+      }
+
+      return await res.json();
+    } catch (error) {
+      return rejectWithValue(error.message || "Failed to fetch product details");
+    }
+  },
+);
+
 const initialState = {
   products: [],
-  //   cart: [],
   loading: false,
   error: null,
+  selectedProductId: null,
+  selectedProduct: null,
+  selectedProductLoading: false,
+  selectedProductError: null,
   cart: JSON.parse(localStorage.getItem("cart")) || [],
 };
 
@@ -61,7 +81,12 @@ const productSlice = createSlice({
       if (item && item.quantity > 0) {
         item.quantity -= 1;
       }
+      state.cart = state.cart.filter((cartItem) => cartItem.quantity > 0);
       localStorage.setItem("cart", JSON.stringify(state.cart));
+    },
+
+    selectProduct: (state, action) => {
+      state.selectedProductId = action.payload;
     },
   },
 
@@ -80,6 +105,22 @@ const productSlice = createSlice({
       .addCase(fetchData.rejected, (state) => {
         state.loading = false;
         state.error = "Failed to fetch products";
+      })
+      .addCase(fetchProductById.pending, (state, action) => {
+        state.selectedProductId = action.meta.arg;
+        state.selectedProduct = null;
+        state.selectedProductLoading = true;
+        state.selectedProductError = null;
+      })
+      .addCase(fetchProductById.fulfilled, (state, action) => {
+        state.selectedProductLoading = false;
+        state.selectedProduct = action.payload;
+      })
+      .addCase(fetchProductById.rejected, (state, action) => {
+        state.selectedProductLoading = false;
+        state.selectedProduct = null;
+        state.selectedProductError =
+          action.payload || "Failed to fetch product details";
       });
   },
 });
@@ -90,6 +131,7 @@ export const {
   clearCart,
   decreaseQuantity,
   increaseQuantity,
+  selectProduct,
 } = productSlice.actions;
 
 export default productSlice.reducer;

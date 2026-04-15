@@ -4,9 +4,11 @@ import { fetchData } from "../features/productsSlice";
 import Products from "./Products";
 import "./ProductList.scss";
 
-export default function ProductList() {
+export default function ProductList({ onNavigate }) {
   const dispatch = useDispatch();
-  const { products, loading, error } = useSelector((state) => state.products);
+  const { products, loading, error, selectedProductId } = useSelector(
+    (state) => state.products,
+  );
 
   useEffect(() => {
     dispatch(fetchData());
@@ -24,7 +26,12 @@ export default function ProductList() {
 
       <div className="productList__grid">
         {products.map((product) => (
-          <Products key={product.id} product={product} />
+          <Products
+            key={product.id}
+            product={product}
+            isSelected={selectedProductId === product.id}
+            onNavigate={onNavigate}
+          />
         ))}
       </div>
     </section>
