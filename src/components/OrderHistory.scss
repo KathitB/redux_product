@@ -1,0 +1,254 @@
+.order-history {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 28px;
+  border-radius: 28px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(59, 130, 246, 0.08),
+      transparent 28%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.96),
+      rgba(248, 250, 252, 0.92)
+    );
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+
+  &__header {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    color: #2563eb;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    color: #0f172a;
+  }
+
+  &__subtitle {
+    margin: 0;
+    max-width: 60ch;
+    color: #64748b;
+    line-height: 1.7;
+  }
+
+  &__empty {
+    display: grid;
+    gap: 8px;
+    padding: 28px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px dashed rgba(148, 163, 184, 0.32);
+
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h3 {
+      color: #0b0e16;
+    }
+
+    p {
+      color: #070a0f;
+    }
+  }
+}
+
+.order-card {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  margin-bottom: 18px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.06);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 22px 40px rgba(15, 23, 42, 0.09);
+  }
+
+  &__top {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  &__label {
+    margin: 0 0 6px;
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #0f172a;
+  }
+
+  &__meta {
+    display: grid;
+    gap: 6px;
+    justify-items: end;
+    text-align: right;
+  }
+
+  &__amount {
+    color: #0f172a;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+
+  &__date {
+    color: #64748b;
+    font-size: 0.92rem;
+  }
+
+  &__items {
+    padding-top: 16px;
+    border-top: 1px solid rgba(226, 232, 240, 0.9);
+  }
+
+  &__image {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  &__tableWrap {
+    padding-top: 16px;
+    border-top: 1px solid rgba(226, 232, 240, 0.9);
+    overflow-x: auto;
+  }
+
+  &__tableWrap::-webkit-scrollbar {
+    display: none;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 980px;
+    background: #fff;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 16px;
+
+    th,
+    td {
+      padding: 14px 16px;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 0.92rem;
+    }
+
+    th {
+      color: #64748b;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: rgba(241, 245, 249, 0.8);
+      white-space: nowrap;
+    }
+
+    td {
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    tr + tr {
+      border-top: 1px solid rgba(226, 232, 240, 0.95);
+    }
+  }
+
+  &__productCell {
+    display: grid;
+    gap: 4px;
+    min-width: 180px;
+
+    strong {
+      color: #0f172a;
+      font-size: 0.96rem;
+    }
+
+    span {
+      color: #64748b;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .order-history {
+    padding: 20px;
+  }
+
+  .order-card {
+    padding: 18px;
+
+    &__top {
+      flex-direction: column;
+      align-items: start;
+    }
+
+    &__table {
+      min-width: 0;
+
+      thead {
+        display: none;
+      }
+
+      tr {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+      }
+
+      td {
+        display: grid;
+        grid-template-columns: 120px minmax(0, 1fr);
+        gap: 10px;
+        padding: 0;
+        border: 0;
+
+        &::before {
+          content: attr(data-label);
+          color: #64748b;
+          font-size: 0.8rem;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+        }
+      }
+    }
+
+    &__meta {
+      justify-items: start;
+      text-align: left;
+    }
+  }
+}

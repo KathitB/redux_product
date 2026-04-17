@@ -10,6 +10,7 @@ import PaymentOptions from "./components/PaymentOptions";
 import ProductPage from "./components/ProductPage";
 import cartIcon from "./assets/cart-shopping-svgrepo-com.svg";
 import OrderIcon from "./assets/order-history.svg";
+import OrderHistory from "./components/OrderHistory";
 
 function getProductIdFromPath(pathname) {
   const match = pathname.match(/^\/products\/(\d+)$/);
@@ -50,6 +51,7 @@ function App() {
   const isProductRoute = productId !== null;
   const isMobileCartRoute = pathname === "/mobile";
   const isPaymentRoute = pathname === "/payment";
+  const isOrderHistoryRoute = pathname === "/orderhistory";
   const totalItemsinCart = cart.filter((item) => item.quantity > 0).length;
 
   const handleCartClick = () => {
@@ -88,7 +90,7 @@ function App() {
         {!isMobileCartRoute && !isPaymentRoute && (
           <div>
             <p className="appShell__eyebrow">Redux Toolkit Demo</p>
-            <h1>Redux Store</h1>
+            <h1>E-commerce Store</h1>
             <p className="appShell__subtitle">
               Browse products, add them to the cart, and watch the store update
               in real time.
@@ -118,7 +120,7 @@ function App() {
 
             <button
               type="button"
-              className={`appShell__cartToggle ${isCartOpen || isMobileCartRoute ? "appShell__cartToggle--active" : ""}`}
+              className={`appShell__cartToggle `}
               onClick={handleOrderClick}
               aria-label="Order cart"
               aria-pressed={isCartOpen || isMobileCartRoute}
@@ -138,7 +140,9 @@ function App() {
       <div
         className={`appShell__content ${isProductRoute ? "appShell__content--detail" : ""} ${isCartOpen ? "appShell__content--withCart" : ""}`}
       >
-        {isPaymentRoute ? (
+        {isOrderHistoryRoute ? (
+          <OrderHistory />
+        ) : isPaymentRoute ? (
           <PaymentOptions
             onBack={() => navigateTo("/")}
             onReturnHome={() => navigateTo("/")}

@@ -6,6 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./PaymentOptions.scss";
 import { clearCart } from "../features/productsSlice";
 import { initiateUpiPayment } from "./payment";
+import { addOrder } from "../features/orderSlice";
 const paymentMethods = [
   {
     id: "card",
@@ -330,6 +331,17 @@ export default function PaymentOptions({ onBack, onReturnHome }) {
     }
 
     if (selectedMethod !== "upi") {
+      const orderData = {
+        id: Date.now(),
+        items: cartItems,
+        total: summary.total,
+        date: new Date().toISOString(),
+        user: authUser,
+        paymentMethod: selectedPaymentLabel,
+      };
+
+      dispatch(addOrder(orderData));
+
       setIsPaymentSuccessOpen(true);
       return;
     }
@@ -351,6 +363,17 @@ export default function PaymentOptions({ onBack, onReturnHome }) {
         name: billingDetails.fullName || authUser?.name || "Guest User",
         upiId: paymentDetails.upiId.trim(),
       });
+
+      const orderData = {
+        id: Date.now(),
+        items: cartItems,
+        total: summary.total,
+        date: new Date().toISOString(),
+        user: authUser,
+        paymentMethod: selectedPaymentLabel,
+      };
+
+      dispatch(addOrder(orderData));
 
       window.location.href = redirectUrl;
     } catch (error) {
