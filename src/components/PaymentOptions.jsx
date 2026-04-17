@@ -346,7 +346,7 @@ export default function PaymentOptions({ onBack, onReturnHome }) {
       const redirectUrl = await initiateUpiPayment({
         amount: Number(summary.total.toFixed(2)),
         userId:
-          authUser?.email || billingDetails.email || `guest-${Date.now()}`,
+          authUser?.phone || billingDetails.phone || `guest-${Date.now()}`,
         phone: billingDetails.phone || "9999999999",
         name: billingDetails.fullName || authUser?.name || "Guest User",
         upiId: paymentDetails.upiId.trim(),

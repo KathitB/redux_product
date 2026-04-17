@@ -9,6 +9,7 @@ import CartItemsMobile from "./components/CartItemsMobile";
 import PaymentOptions from "./components/PaymentOptions";
 import ProductPage from "./components/ProductPage";
 import cartIcon from "./assets/cart-shopping-svgrepo-com.svg";
+import OrderIcon from "./assets/order-history.svg";
 
 function getProductIdFromPath(pathname) {
   const match = pathname.match(/^\/products\/(\d+)$/);
@@ -61,6 +62,10 @@ function App() {
     setIsCartOpen((current) => !current);
   };
 
+  const handleOrderClick = () => {
+    navigateTo("/orderhistory");
+  };
+
   const handleMobileCartBack = () => {
     if (window.history.length > 1) {
       window.history.back();
@@ -104,10 +109,22 @@ function App() {
               >
                 <img src={cartIcon} alt="" aria-hidden="true" />
                 {totalItemsinCart >= 0 && (
-                  <span className="appShell__cartCount">{totalItemsinCart}</span>
+                  <span className="appShell__cartCount">
+                    {totalItemsinCart}
+                  </span>
                 )}
               </button>
             )}
+
+            <button
+              type="button"
+              className={`appShell__cartToggle ${isCartOpen || isMobileCartRoute ? "appShell__cartToggle--active" : ""}`}
+              onClick={handleOrderClick}
+              aria-label="Order cart"
+              aria-pressed={isCartOpen || isMobileCartRoute}
+            >
+              <img src={OrderIcon} alt="" aria-hidden="true" />
+            </button>
             <button
               className="appShell__logout"
               onClick={() => dispatch(logout())}

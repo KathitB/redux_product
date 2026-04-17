@@ -24,6 +24,7 @@
     background: rgba(255, 255, 255, 0.88);
     box-shadow: 0 28px 60px rgba(15, 23, 42, 0.12);
     backdrop-filter: blur(12px);
+    overflow: visible;
   }
 
   &__eyebrow {
@@ -45,25 +46,6 @@
     margin: 14px 0 0;
     color: #475569;
     line-height: 1.7;
-  }
-
-  &__demo {
-    display: grid;
-    gap: 4px;
-    margin-top: 24px;
-    padding: 16px;
-    border-radius: 18px;
-    background: #fff7ed;
-    color: #9a3412;
-
-    p {
-      margin: 0 0 4px;
-      font-weight: 800;
-    }
-
-    span {
-      font-size: 0.94rem;
-    }
   }
 }
 
@@ -88,6 +70,7 @@
       border-radius: 14px;
       outline: none;
       background: #fff;
+      box-sizing: border-box;
 
       &:focus {
         border-color: #2563eb;
@@ -101,12 +84,133 @@
     }
   }
 
+  &__phoneRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
+  }
+
+  &__phoneInput {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #fff;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:focus-within {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .PhoneInputCountry {
+      margin-right: 8px;
+    }
+
+    .PhoneInputInput {
+      min-width: 0;
+      border: 0;
+      box-shadow: none;
+      padding: 14px 0;
+    }
+  }
+
+  &__phoneInput--error {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+  }
+
+  &__otpButton {
+    min-width: 124px;
+    padding: 14px 16px;
+    border: 0;
+    border-radius: 14px;
+    background: #1d4ed8;
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &__otpBlock {
+    display: grid;
+    gap: 12px;
+    padding: 18px;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    animation: slideDown 0.25s ease forwards;
+  }
+
+  // react-otp-input renders a div as container — override its inline display
+  &__otp {
+    display: flex !important;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+  }
+
+  &__otpInput {
+    width: 100% !important;
+    max-width: 58px;
+    height: 58px;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    background: #fff;
+    font-size: 1.25rem;
+    font-weight: 800;
+    text-align: center;
+    color: #0f172a;
+    outline: none;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+  }
+
+  &__resendButton {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #2563eb;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 0.92rem;
+
+    &:disabled {
+      color: #94a3b8;
+      cursor: not-allowed;
+    }
+  }
+
   &__message {
     margin: 0;
     font-size: 0.92rem;
 
     &--error {
       color: #dc2626;
+    }
+
+    &--info {
+      color: #0f766e;
+    }
+
+    &--hint {
+      color: #64748b;
     }
   }
 
@@ -131,16 +235,41 @@
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 640px) {
   .loginPanel {
+    align-items: start;
+    padding: 16px 12px;
+
     &__content {
-      width: min(100%, 300px);
-      padding: 16px;
-      border: 1px solid rgba(148, 163, 184, 0.24);
-      border-radius: 7px;
-      background: rgba(255, 255, 255, 0.88);
-      box-shadow: 0 28px 60px rgba(15, 23, 42, 0.12);
-      backdrop-filter: blur(12px);
+      width: 100%;
+      padding: 20px 16px;
+      border-radius: 16px;
+    }
+  }
+
+  .loginForm {
+    &__phoneRow {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    &__otpButton {
+      width: 100%;
+    }
+
+    &__otpInput {
+      max-width: 52px;
+      height: 52px;
     }
   }
 }

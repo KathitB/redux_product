@@ -13,26 +13,27 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action) => {
-      const { email, password } = action.payload;
-      const normalizedEmail = email.trim().toLowerCase();
+      const { name, phone } = action.payload;
+      const normalizedName = name.trim();
+      const normalizedPhone = phone.trim();
 
-      if (normalizedEmail === "admin@gmail.com" && password === "12345") {
-        const user = {
-          email: normalizedEmail,
-          name: "admin",
-        };
-
-        state.isAuthenticated = true;
-        state.user = user;
-        state.error = null;
-        localStorage.setItem("authUser", JSON.stringify(user));
+      if (!normalizedName || !normalizedPhone) {
+        state.isAuthenticated = false;
+        state.user = null;
+        state.error = "Name and phone number are required";
+        localStorage.removeItem("authUser");
         return;
       }
 
-      state.isAuthenticated = false;
-      state.user = null;
-      state.error = "Invalid email or password";
-      localStorage.removeItem("authUser");
+      const user = {
+        name: normalizedName,
+        phone: normalizedPhone,
+      };
+
+      state.isAuthenticated = true;
+      state.user = user;
+      state.error = null;
+      localStorage.setItem("authUser", JSON.stringify(user));
     },
 
     logout: (state) => {
