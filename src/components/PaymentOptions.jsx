@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./PaymentOptions.scss";
 import { clearCart } from "../features/productsSlice";
+import { initiateUpiPayment } from "./payment";
 const paymentMethods = [
   {
     id: "card",
@@ -39,37 +40,14 @@ function formatExpiryDate(value) {
   }).format(value);
 }
 
-function getPaymentDetailsLabel(selectedMethod, paymentDetails) {
-  if (selectedMethod === "card") {
-    return [
-      `Card Holder: ${paymentDetails.cardName || "Not provided"}`,
-      `Card Number: ${paymentDetails.cardNumber || "Not provided"}`,
-      `Expiry Date: ${formatExpiryDate(paymentDetails.expiryDate) || "Not provided"}`,
-      `CVV: ${paymentDetails.cvv || "Not Provided"}`,
-    ];
-  }
-
-  if (selectedMethod === "upi") {
-    return [`UPI ID: ${paymentDetails.upiId || "Not provided"}`];
-  }
-
-  if (selectedMethod === "netbanking") {
-    return [
-      `Bank Name: ${paymentDetails.bankName || "Not provided"}`,
-      `Account Holder: ${paymentDetails.accountHolder || "Not provided"}`,
-    ];
-  }
-
-  return [
-    `COD Contact Preference: ${paymentDetails.address || "Phone call before delivery"}`,
-  ];
-}
-
 export default function PaymentOptions({ onBack, onReturnHome }) {
   const { cart } = useSelector((state) => state.products);
+  const authUser = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const [selectedMethod, setSelectedMethod] = useState("card");
   const [isPaymentSuccessOpen, setIsPaymentSuccessOpen] = useState(false);
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [paymentError, setPaymentError] = useState("");
   const [billingDetails, setBillingDetails] = useState({
     fullName: "",
     email: "",
@@ -128,6 +106,10 @@ export default function PaymentOptions({ onBack, onReturnHome }) {
       ...current,
       [name]: value,
     }));
+
+    if (paymentError) {
+      setPaymentError("");
+    }
   };
 
   const handleReturnToHome = () => {
@@ -136,12 +118,84 @@ export default function PaymentOptions({ onBack, onReturnHome }) {
     onReturnHome();
   };
 
+  //   const handleDownloadPdf = () => {
+  //     const doc = new jsPDF();
+  //     const pageHeight = doc.internal.pageSize.getHeight();
+  //     let y = 20;
+
+  //     const addLine = (text, x = 16, gap = 8) => {
+  //       const lines = doc.splitTextToSize(text, 178);
+
+  //       if (y + lines.length * gap > pageHeight - 20) {
+  //         doc.addPage();
+  //         y = 20;
+  //       }
+
+  //       doc.text(lines, x, y);
+  //       y += lines.length * gap;
+  //     };
+
+  //     doc.setFont("helvetica", "bold");
+  //     doc.setFontSize(20);
+  //     addLine("Order Invoice", 16, 10);
+
+  //     doc.setFont("helvetica", "normal");
+  //     doc.setFontSize(11);
+  //     addLine(`Payment Method: ${selectedPaymentLabel}`);
+  //     if (selectedMethod === "card") {
+  //       addLine(`Name on the card: ${paymentDetails.cardName || "Not provided"}`);
+  //     }
+  //     // addLine(`Name on Card: ${paymentDetails.cardName || "Not Provided"}`);
+  //     y += 4;
+  //     doc.setFont("helvetica", "bold");
+  //     addLine("Billing Details", 16, 10);
+  //     // y += 2;
+  //     doc.setFont("helvetica", "normal");
+  //     addLine(`Full Name: ${billingDetails.fullName || "Not provided"}`);
+  //     addLine(`Email: ${billingDetails.email || "Not provided"}`);
+  //     addLine(`Phone: ${billingDetails.phone || "Not provided"}`);
+  //     addLine(`Address: ${billingDetails.address || "Not provided"}`);
+
+  //     y += 4;
+  //     doc.setFont("helvetica", "bold");
+  //     addLine("Items", 16, 8);
+
+  //     doc.setFont("helvetica", "normal");
+  //     if (cartItems.length === 0) {
+  //       addLine("No items in cart.");
+  //     } else {
+  //       cartItems.forEach((item) => {
+  //         addLine(
+  //           `${item.title} | Qty ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`,
+  //         );
+  //       });
+  //     }
+
+  //     y += 4;
+  //     doc.setFont("helvetica", "bold");
+  //     addLine("Bill Summary", 16, 8);
+
+  //     doc.setFont("helvetica", "normal");
+  //     addLine(`Subtotal: ${formatCurrency(summary.subtotal)}`);
+  //     addLine(`Delivery Charges: ${formatCurrency(summary.delivery)}`);
+  //     addLine(`Packaging Fee: ${formatCurrency(summary.packaging)}`);
+  //     addLine(`Estimated Tax: ${formatCurrency(summary.tax)}`);
+
+  //     doc.setFont("helvetica", "bold");
+  //     addLine(`Total Payable: ${formatCurrency(summary.total)}`);
+
+  //     const fileName = `invoice-${Date.now()}.pdf`;
+  //     doc.save(fileName);
+  //   };
+
   const handleDownloadPdf = () => {
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
+
     let y = 20;
 
-    const addLine = (text, x = 16, gap = 8) => {
+    const addLine = (text, x = 16, gap = 8, align = "left") => {
       const lines = doc.splitTextToSize(text, 178);
 
       if (y + lines.length * gap > pageHeight - 20) {
@@ -149,61 +203,165 @@ export default function PaymentOptions({ onBack, onReturnHome }) {
         y = 20;
       }
 
-      doc.text(lines, x, y);
+      doc.text(lines, align === "right" ? pageWidth - 16 : x, y, {
+        align,
+      });
+
       y += lines.length * gap;
     };
 
+    const addDivider = () => {
+      doc.line(16, y, pageWidth - 16, y);
+      y += 6;
+    };
+
+    // 🧾 HEADER
     doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
-    addLine("Order Invoice", 16, 10);
+    addLine("INVOICE", 16, 10);
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    addLine(`Date: ${new Date().toLocaleString()}`);
+    addDivider();
+
+    // 💳 PAYMENT INFO
+    doc.setFont("helvetica", "bold");
+    addLine("Payment Details", 16, 8);
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    addLine(`Payment Method: ${selectedPaymentLabel}`);
+    addLine(`Method: ${selectedPaymentLabel}`);
+
     if (selectedMethod === "card") {
-      addLine(`Name on the card: ${paymentDetails.cardName || "Not provided"}`);
+      addLine(`Card Holder: ${paymentDetails.cardName || "Not provided"}`);
     }
-    // addLine(`Name on Card: ${paymentDetails.cardName || "Not Provided"}`);
-    y += 4;
+
+    addDivider();
+
+    // 👤 BILLING DETAILS
     doc.setFont("helvetica", "bold");
-    addLine("Billing Details", 16, 10);
-    // y += 2;
+    addLine("Billing Details", 16, 8);
+
     doc.setFont("helvetica", "normal");
-    addLine(`Full Name: ${billingDetails.fullName || "Not provided"}`);
+    addLine(`Name: ${billingDetails.fullName || "Not provided"}`);
     addLine(`Email: ${billingDetails.email || "Not provided"}`);
     addLine(`Phone: ${billingDetails.phone || "Not provided"}`);
     addLine(`Address: ${billingDetails.address || "Not provided"}`);
 
-    y += 4;
+    addDivider();
+
+    // 🛒 ITEMS TABLE HEADER
     doc.setFont("helvetica", "bold");
     addLine("Items", 16, 8);
 
+    y += 2;
+    doc.setFontSize(11);
+
+    // Table header
+    doc.text("Item", 16, y);
+    doc.text("Qty", 120, y);
+    doc.text("Total", pageWidth - 16, y, { align: "right" });
+
+    y += 4;
+    addDivider();
+
     doc.setFont("helvetica", "normal");
+
     if (cartItems.length === 0) {
       addLine("No items in cart.");
     } else {
       cartItems.forEach((item) => {
-        addLine(
-          `${item.title} | Qty ${item.quantity} | ${formatCurrency(item.price * item.quantity)}`,
+        // wrap item title
+        const titleLines = doc.splitTextToSize(item.title, 90);
+
+        const rowHeight = titleLines.length * 6;
+
+        if (y + rowHeight > pageHeight - 20) {
+          doc.addPage();
+          y = 20;
+        }
+
+        doc.text(titleLines, 16, y);
+        doc.text(String(item.quantity), 120, y);
+        doc.text(
+          formatCurrency(item.price * item.quantity),
+          pageWidth - 16,
+          y,
+          { align: "right" },
         );
+
+        y += rowHeight;
       });
     }
 
-    y += 4;
+    addDivider();
+
+    // 💰 BILL SUMMARY
     doc.setFont("helvetica", "bold");
     addLine("Bill Summary", 16, 8);
 
     doc.setFont("helvetica", "normal");
-    addLine(`Subtotal: ${formatCurrency(summary.subtotal)}`);
-    addLine(`Delivery Charges: ${formatCurrency(summary.delivery)}`);
-    addLine(`Packaging Fee: ${formatCurrency(summary.packaging)}`);
-    addLine(`Estimated Tax: ${formatCurrency(summary.tax)}`);
+
+    const addRightLine = (label, value) => {
+      doc.text(label, 16, y);
+      doc.text(value, pageWidth - 16, y, { align: "right" });
+      y += 8;
+    };
+
+    addRightLine("Subtotal", formatCurrency(summary.subtotal));
+    addRightLine("Delivery", formatCurrency(summary.delivery));
+    addRightLine("Packaging", formatCurrency(summary.packaging));
+    addRightLine("Tax", formatCurrency(summary.tax));
+
+    addDivider();
 
     doc.setFont("helvetica", "bold");
-    addLine(`Total Payable: ${formatCurrency(summary.total)}`);
+    doc.setFontSize(13);
 
+    addRightLine("TOTAL", formatCurrency(summary.total));
+
+    // 💾 SAVE
     const fileName = `invoice-${Date.now()}.pdf`;
     doc.save(fileName);
+  };
+  const handlePayNow = async () => {
+    if (cartItems.length === 0) {
+      return;
+    }
+
+    if (selectedMethod !== "upi") {
+      setIsPaymentSuccessOpen(true);
+      return;
+    }
+
+    if (!paymentDetails.upiId.trim()) {
+      setPaymentError("Enter a UPI ID to continue with the UPI payment.");
+      return;
+    }
+
+    setPaymentError("");
+    setIsSubmittingPayment(true);
+
+    try {
+      const redirectUrl = await initiateUpiPayment({
+        amount: Number(summary.total.toFixed(2)),
+        userId:
+          authUser?.email || billingDetails.email || `guest-${Date.now()}`,
+        phone: billingDetails.phone || "9999999999",
+        name: billingDetails.fullName || authUser?.name || "Guest User",
+        upiId: paymentDetails.upiId.trim(),
+      });
+
+      window.location.href = redirectUrl;
+    } catch (error) {
+      setPaymentError(
+        error.response?.data?.error ||
+          error.message ||
+          "Failed to start the UPI payment.",
+      );
+    } finally {
+      setIsSubmittingPayment(false);
+    }
   };
 
   return (
@@ -303,16 +461,22 @@ export default function PaymentOptions({ onBack, onReturnHome }) {
                 )}
 
                 {selectedMethod === "upi" && (
-                  <label className="paymentPage__field paymentPage__field--wide">
-                    <span>UPI ID</span>
-                    <input
-                      type="text"
-                      name="upiId"
-                      placeholder="name@bank"
-                      value={paymentDetails.upiId}
-                      onChange={handlePaymentDetailChange}
-                    />
-                  </label>
+                  <>
+                    <label className="paymentPage__field paymentPage__field--wide">
+                      <span>UPI ID</span>
+                      <input
+                        type="text"
+                        name="upiId"
+                        placeholder="name@bank"
+                        value={paymentDetails.upiId}
+                        onChange={handlePaymentDetailChange}
+                      />
+                    </label>
+                    <p className="paymentPage__helper">
+                      You will be redirected to the PhonePe UPI payment page to
+                      complete the transaction.
+                    </p>
+                  </>
                 )}
 
                 {selectedMethod === "netbanking" && (
@@ -456,11 +620,16 @@ export default function PaymentOptions({ onBack, onReturnHome }) {
               <button
                 type="button"
                 className="paymentPage__placeOrder"
-                onClick={() => setIsPaymentSuccessOpen(true)}
-                disabled={cartItems.length === 0}
+                onClick={handlePayNow}
+                disabled={cartItems.length === 0 || isSubmittingPayment}
               >
-                Pay Now
+                {/* {isSubmittingPayment ? "Starting UPI Payment..." : "Pay Now"}
+                 */}
+                PAY Now
               </button>
+              {paymentError && (
+                <p className="paymentPage__paymentError">{paymentError}</p>
+              )}
             </div>
           </aside>
         </div>
